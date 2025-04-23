@@ -235,6 +235,7 @@ def main() -> None:
         "--config",
         type=argparse.FileType("r"),
         help="Path to server config file. Used to read in shared secret.",
+        action="append",
     )
 
     group.add_argument(
@@ -253,7 +254,11 @@ def main() -> None:
 
     config: Optional[Dict[str, Any]] = None
     if "config" in args and args.config:
-        config = yaml.safe_load(args.config)
+        merged_data = {}
+        for config_path in args.config:
+            data = yaml.safe_load(args.config)
+            merged_data.update(data)  # Later keys override earlier ones
+        config = merged_data
 
     if args.shared_secret:
         secret = args.shared_secret
